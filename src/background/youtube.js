@@ -22,7 +22,7 @@ export class YouTubeDownloads{
  }
  scheduleIdle(){clearTimeout(this.idle);if(this.pending.size)return;this.idle=setTimeout(()=>{const port=this.port;this.port=null;port?.disconnect();},60000);}
  request(operation,data={},id=crypto.randomUUID(),timeoutMs=120000){return new Promise((resolve,reject)=>{
-  try{const port=this.connect(),timer=timeoutMs?setTimeout(()=>{this.pending.delete(id);reject(Error('YouTube phản hồi quá chậm. Thử lại sau.'));this.request('cancel',{target:id},crypto.randomUUID(),10000).catch(()=>{});},timeoutMs):null;this.pending.set(id,{resolve,reject,timer});port.postMessage({id,operation,...data});}
+  try{const port=this.connect(),timer=timeoutMs?setTimeout(()=>{this.pending.delete(id);reject(Error(operation==='open-folder'?'Không mở được thư mục tải. Kiểm tra thư mục Downloads rồi thử lại.':'YouTube phản hồi quá chậm. Thử lại sau.'));if(['info','download'].includes(operation))this.request('cancel',{target:id},crypto.randomUUID(),10000).catch(()=>{});},timeoutMs):null;this.pending.set(id,{resolve,reject,timer});port.postMessage({id,operation,...data});}
   catch(error){this.pending.delete(id);reject(error);}
  });}
  async cookies(){return (await this.api.cookies.getAll({domain:'.youtube.com'})).filter(cookie=>/^(?:\.)?(?:[a-z0-9-]+\.)*youtube\.com$/i.test(cookie.domain)).sort((a,b)=>(a.domain+a.path+a.name).localeCompare(b.domain+b.path+b.name));}
@@ -51,6 +51,6 @@ export class YouTubeDownloads{
   finally{this.publish(job);this.active=null;this.pump();}
  }
  async cancel(jobId){const job=this.jobs.get(jobId);if(!job)return;if(this.active?.id===jobId){job.state='cancelled';this.publish(job);await this.request('cancel',{target:jobId});}else{this.queue=this.queue.filter(item=>item.id!==jobId);job.state='cancelled';job.error='Đã dừng tải.';this.publish(job);}}
- async openFolder(){await this.request('open-folder',{},crypto.randomUUID(),10000);}
+ openFolder(){if(!this.folderOpening)this.folderOpening=this.request('open-folder',{},crypto.randomUUID(),3500).finally(()=>{this.folderOpening=null;});return this.folderOpening;}
  async list(){await this.ready;return [...this.jobs.values()].map(job=>this.snapshot(job));}
 }

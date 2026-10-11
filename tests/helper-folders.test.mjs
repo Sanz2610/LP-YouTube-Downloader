@@ -5,21 +5,19 @@ import path from 'node:path';
 import {openDownloadFolder} from '../helper/windows-shell.mjs';
 import {outputTemplate} from '../helper/output-template.mjs';
 
-test('folder opening uses the Windows shell with a visible Explorer window even from a hidden native host',async()=>{
+test('folder opening uses the compiled launcher directly with no PowerShell or path argument',async()=>{
   let call;
-  await openDownloadFolder("C:\\Users\\Fixture\\My Downloads's",{windowsRoot:'C:\\Windows',stat:async()=>({isDirectory:()=>true}),execute:async(...args)=>{call=args;}});
-  const script=Buffer.from(call[1].at(-1),'base64').toString('utf16le');
-  assert.equal(call[0],'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe');
-  assert.match(script,/ShellExecute\('C:\\Users\\Fixture\\My Downloads''s','','','open',1\)/);
-  assert.equal(call[2].windowsHide,true); // Console only; Explorer uses SW_SHOWNORMAL above.
+  await openDownloadFolder("C:\\Users\\Fixture\\My Downloads's",{opener:'C:\\App\\folder-opener.exe',stat:async()=>({isDirectory:()=>true}),execute:async(...args)=>{call=args;}});
+  assert.equal(call[0],'C:\\App\\folder-opener.exe');assert.deepEqual(call[1],[]);
+  assert.equal(call[2].windowsHide,false);assert.equal(call[2].timeout,2500);
 });
 test('missing folders or invalid paths cannot launch Explorer',async()=>{
   for(const value of ['relative','https://example.test/video','C:\\Missing']){
-    await assert.rejects(openDownloadFolder(value,{windowsRoot:'C:\\Windows',stat:async()=>{throw Error('private file path');},execute:async()=>assert.fail('must not launch')}),/Không mở được thư mục tải/);
+    await assert.rejects(openDownloadFolder(value,{stat:async()=>{throw Error('private file path');},execute:async()=>assert.fail('must not launch')}),/Không mở được thư mục tải/);
   }
 });
 test('shell failures return a safe error instead of a false successful acknowledgement',async()=>{
-  const failure=await openDownloadFolder('C:\\Downloads',{windowsRoot:'C:\\Windows',stat:async()=>({isDirectory:()=>true}),execute:async()=>{throw Error('https://fixture.test/?token=secret');}}).catch(error=>error.message);
+  const failure=await openDownloadFolder('C:\\Downloads',{stat:async()=>({isDirectory:()=>true}),execute:async()=>{throw Error('https://fixture.test/?token=secret');}}).catch(error=>error.message);
   assert.match(failure,/Không mở được thư mục tải/);assert.ok(!failure.includes('secret'));assert.ok(!failure.includes('https://'));
 });
 test('redownloading preserves existing files and downloading after deletion is allowed',async()=>{

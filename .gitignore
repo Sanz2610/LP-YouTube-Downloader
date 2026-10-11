@@ -12,6 +12,7 @@ helper/runtime/node.exe
 helper/tools/**/*.exe
 helper/tools/**/*.dll
 helper/native-bridge.exe
+helper/folder-opener.exe
 *.pem
 *.pfx
 *.p12

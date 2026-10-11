@@ -21,3 +21,5 @@ The manifest contains a newly generated public key for a stable extension ID. Th
 `assets/icons/lucide/download.svg` is the official Lucide download glyph. `tools/render-icons.mjs` applies a red background and renders the same glyph for popup SVG and manifest PNGs; it does not draw an independent arrow. `helper/licenses/` contains upstream notices. The Windows binary dependencies are excluded from Git and restored from the pinned runtime release in `helper/runtime.lock.json`.
 
 `tests/youtube.test.mjs` was also selectively adapted from the retired backup. Other tests, GitHub workflows and release tooling are project additions.
+
+`helper/OpenFolder.cs` is a project-written launcher for Explorer; `folder-opener.exe` is compiled from this source and bundled only in releases. `tools/ExplorerProbe.cs` is a read-only Win32 QA probe, with an explicit close action limited to its own named test folders.

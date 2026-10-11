@@ -12,7 +12,7 @@ $ffmpegDir=Join-Path $helperRoot 'tools\ffmpeg'
 $bundledNode=Join-Path $helperRoot 'runtime\node.exe'
 if(Test-Path -LiteralPath $bundledNode){$node=$bundledNode}else{$node=(Get-Command node.exe -ErrorAction SilentlyContinue).Source;if(!$node -and (Test-Path "$env:ProgramFiles\nodejs\node.exe")){$node="$env:ProgramFiles\nodejs\node.exe"}}
 if(!$node){throw 'Node.js runtime was not found.'}
-foreach($file in @($script,$ytdlp,$bridge)){if(!(Test-Path -LiteralPath $file)){throw "Missing helper file: $file"}}
+foreach($file in @($script,$ytdlp,$bridge,(Join-Path $helperRoot 'folder-opener.exe'))){if(!(Test-Path -LiteralPath $file)){throw "Missing helper file: $file"}}
 foreach($file in @('ffmpeg.exe','ffprobe.exe')){if(!(Test-Path -LiteralPath (Join-Path $ffmpegDir $file))){throw "Missing FFmpeg runtime: $file"}}
 $downloads=(New-Object -ComObject Shell.Application).NameSpace('shell:Downloads').Self.Path
 $registrySubkeys=@("Software\Microsoft\Edge\NativeMessagingHosts\$hostName","Software\Google\Chrome\NativeMessagingHosts\$hostName","Software\Chromium\NativeMessagingHosts\$hostName")

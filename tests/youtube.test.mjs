@@ -52,3 +52,10 @@ test('progress reports skip repeats and preserve phase changes under throttling'
  emit('downloading',0);time=400;emit('downloading',0);emit('downloading',null);time=800;emit('downloading',null);emit('downloading',10);time=810;emit('merging',98);
  assert.deepEqual(values,[{state:'downloading',percent:0},{state:'downloading',percent:null},{state:'downloading',percent:10},{state:'merging',percent:98}]);
 });
+test('simultaneous folder clicks share one native request and a failed attempt can be retried',async()=>{
+ const {api,ports}=nativeAPI(),manager=new YouTubeDownloads(api);let sent=[];
+ manager.connect();ports[0].postMessage=message=>sent.push(message);
+ const first=manager.openFolder(),same=manager.openFolder();assert.equal(first,same);assert.equal(sent.length,1);assert.equal(sent[0].operation,'open-folder');
+ ports[0].emit({id:sent[0].id,ok:false,error:'Không mở được thư mục tải.'});await assert.rejects(first,/Không mở được/);clearTimeout(manager.idle);
+ const retry=manager.openFolder();assert.equal(sent.length,2);ports[0].emit({id:sent[1].id,ok:true});await retry;clearTimeout(manager.idle);
+});

@@ -6,7 +6,7 @@ const messages={
     'Đã lưu vào Tải xuống':'Đã lưu vào Tải xuống','Đã lưu vào {folder}':'Đã lưu vào {folder}','Tải lại':'Tải lại','Đã dừng tải':'Đã dừng tải',
     'Tải không thành công.':'Tải không thành công.','Tải video YouTube':'Tải video YouTube',
     'Tải video YouTube {id}':'Tải video YouTube {id}','Tải {quality} {container}':'Tải {quality} {container}',
-    'Đang lấy chất lượng…':'Đang lấy chất lượng…','Đang chuẩn bị tải…':'Đang chuẩn bị tải…','Mở thư mục':'Mở thư mục','Mở thư mục tải':'Mở thư mục tải','Đang mở thư mục…':'Đang mở thư mục…'
+    'Đang lấy chất lượng…':'Đang lấy chất lượng…','Đang chuẩn bị tải…':'Đang chuẩn bị tải…','Mở thư mục':'Mở thư mục','Mở thư mục tải':'Mở thư mục tải','Đang mở…':'Đang mở…','Đang mở thư mục…':'Đang mở thư mục…'
   },
   en:{
     'Tải video':'Download','Đóng menu tải':'Close download menu','Chọn chất lượng':'Choose quality',
@@ -15,7 +15,7 @@ const messages={
     'Đã lưu vào Tải xuống':'Saved to Downloads','Đã lưu vào {folder}':'Saved to {folder}','Tải lại':'Download again','Đã dừng tải':'Download cancelled',
     'Tải không thành công.':'Download failed.','Tải video YouTube':'Download YouTube video',
     'Tải video YouTube {id}':'Download YouTube video {id}','Tải {quality} {container}':'Download {quality} {container}',
-    'Đang lấy chất lượng…':'Loading qualities…','Đang chuẩn bị tải…':'Preparing download…','Mở thư mục':'Open folder','Mở thư mục tải':'Open download folder','Đang mở thư mục…':'Opening folder…'
+    'Đang lấy chất lượng…':'Loading qualities…','Đang chuẩn bị tải…':'Preparing download…','Mở thư mục':'Open folder','Mở thư mục tải':'Open download folder','Đang mở…':'Opening…','Đang mở thư mục…':'Opening folder…'
   }
 };
 let language='vi';const subscribers=new Set();

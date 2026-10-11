@@ -9,6 +9,8 @@ import {outputTemplate} from './output-template.mjs';
 const root=import.meta.dirname,config=JSON.parse((await fs.readFile(path.join(root,'config.json'),'utf8')).replace(/^\uFEFF/,''));
 if(!config.allowedOrigins.includes(process.argv[2]))process.exit(1);
 const tempRoot=path.join(root,'temp'),children=new Set(),operations=new Map(),cache=new Map();let input=Buffer.alloc(0),closing=false,downloadActive=false;
+let folderOpening=null;
+function openFolderOnce(){if(!folderOpening)folderOpening=openDownloadFolder(config.downloadsDir).finally(()=>{folderOpening=null;});return folderOpening;}
 await fs.mkdir(tempRoot,{recursive:true});
 function write(message){if(closing)return;const payload=Buffer.from(JSON.stringify(message));if(payload.length>1000000)return;const header=Buffer.alloc(4);header.writeUInt32LE(payload.length);process.stdout.write(header);process.stdout.write(payload);}
 const key=(id,cookies)=>id+':'+crypto.createHash('sha256').update(JSON.stringify(cookies||[])).digest('hex');
@@ -61,8 +63,8 @@ async function download(message,operation){
 }
 async function handle(message){
  if(!message||typeof message.id!=='string'||message.id.length>100)return;
- if(message.operation==='ping'){write({id:message.id,ok:true,version:'0.1.1'});return;}
- if(message.operation==='open-folder'){try{await openDownloadFolder(config.downloadsDir);write({id:message.id,ok:true});}catch(error){write({id:message.id,ok:false,error:error.message});}return;}
+ if(message.operation==='ping'){write({id:message.id,ok:true,version:'0.1.2'});return;}
+ if(message.operation==='open-folder'){try{await openFolderOnce();write({id:message.id,ok:true});}catch(error){write({id:message.id,ok:false,error:error.message});}return;}
  if(message.operation==='cancel'){const operation=operations.get(message.target);if(operation){operation.cancelled=true;stop(operation.child);}write({id:message.id,ok:true});return;}
  if(!VIDEO_ID.test(message.videoId||'')||!['info','download'].includes(message.operation)){write({id:message.id,ok:false,error:'Yêu cầu YouTube không hợp lệ.'});return;}
  const operation={cancelled:false};operations.set(message.id,operation);

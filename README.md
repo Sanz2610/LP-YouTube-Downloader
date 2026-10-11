@@ -1,6 +1,6 @@
 # LP YouTube Downloader
 
-**Developed by Lapphan · Version 0.1.1**
+**Developed by Lapphan · Version 0.1.2**
 
 Extension YouTube cho **Windows x64**, hỗ trợ **Microsoft Edge và Google Chrome**. Một nút download nhỏ ở góc phải video đang xem; bấm để chọn chất lượng, xem tiến trình hoặc hủy tải. Helper dùng yt-dlp và FFmpeg để tải và ghép hình/tiếng khi cần.
 
@@ -8,7 +8,7 @@ Extension YouTube cho **Windows x64**, hỗ trợ **Microsoft Edge và Google Ch
 
 [**Tải bản mới nhất tại GitHub Releases**](https://github.com/Sanz2610/LP-YouTube-Downloader/releases/latest)
 
-Trong **Assets**, tải **`LP-YouTube-Downloader-0.1.1-offline.zip`**. Gói này chứa extension, helper, Node.js portable, yt-dlp và FFmpeg. Người dùng không cần cài npm hay các dependency riêng.
+Trong **Assets**, tải **`LP-YouTube-Downloader-0.1.2-offline.zip`**. Gói này chứa extension, helper, Node.js portable, yt-dlp và FFmpeg. Người dùng không cần cài npm hay các dependency riêng.
 
 **Không dùng Code → Download ZIP hoặc Source code (zip) để cài.** Đó là source cho nhà phát triển, không chứa các runtime lớn.
 

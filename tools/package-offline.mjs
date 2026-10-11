@@ -10,6 +10,7 @@ await run(process.execPath,[path.join(root,'tools/check.mjs')]);
 const lock=JSON.parse(await fs.readFile(path.join(root,'helper/runtime.lock.json'),'utf8'));
 for(const [file,expected] of Object.entries(lock.files)){const bytes=await fs.readFile(path.join(root,'helper',file));if(crypto.createHash('sha256').update(bytes).digest('hex')!==expected)throw Error(`Runtime integrity check failed: ${file}`);}
 await fs.access(path.join(root,'helper/native-bridge.exe'));
+await fs.access(path.join(root,'helper/folder-opener.exe'));
 await fs.rm(stage,{recursive:true,force:true});await fs.mkdir(stage,{recursive:true});await fs.mkdir(dist,{recursive:true});
 for(const name of ['helper','extension','installer','manifest.json','README.md','THIRD_PARTY.md','PRIVACY.md','Install-LP-YouTube-Downloader.cmd','Uninstall-LP-YouTube-Downloader.cmd']){const source=path.join(root,name);if(await fs.stat(source).catch(()=>null))await fs.cp(source,path.join(stage,name),{recursive:true,filter:file=>{const relative=path.relative(path.join(root,'helper'),file).replaceAll('\\','/');return !['config.json','native-host.json','temp','tools/ffmpeg/ffplay.exe'].includes(relative)&&!relative.startsWith('temp/');}});}
 const output=path.join(dist,`LP-YouTube-Downloader-${manifest.version}-offline.zip`);await fs.rm(output,{force:true});

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "LP YouTube Downloader",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Tải video YouTube đang xem với lựa chọn chất lượng và tiến trình rõ ràng.",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA6CBpPfwS1/QeG66Iugez1dGBbBltqqombQVUOxjY+pznWUNaXnXBuNjlW/zxo86BIJCm9n7OobdS/xQfsQ5yHR0uIpFZE0lC0T5NzGyLqUDjGhu7XIx9HuvB+shkbjoXjW50h4Kh8HPZAJB6dIa2njiDUIbxvrYGuALNo2pL8IRDwLMjR7muPR1dieYQ/c86hcgMJ3ZUg0pAmjDXVsWZ7hhtUkzQNewgJEjQmOmFogWXBLFWyz097oYC8ea3t0Imlun10XwY4+2xw5ZMNt4sz6EC3/i9OgzUs+wj0hQtyFI77gj5603VImpN353P22wxPiHIlQ+iaMGsg3CYXXk6PQIDAQAB",
   "icons": {

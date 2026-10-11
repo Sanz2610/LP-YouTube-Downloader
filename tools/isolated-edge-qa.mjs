@@ -12,6 +12,9 @@ const fixture=await fs.readFile(path.join(root,'fixtures/youtube-shaped.html'),'
 const shortsFixture=fixture.replace(/<ytd-watch-metadata>[\s\S]*?<\/ytd-watch-metadata>/,'<ytd-reel-video-renderer is-active><div id="actions"><button class="native">Like</button><button class="native">Share</button></div></ytd-reel-video-renderer>');
 const context=await chromium.launchPersistentContext(path.join(evidence,'profile'),{headless:true,executablePath:edge,args:[`--disable-extensions-except=${extension}`,`--load-extension=${extension}`]});
 try{
+  const worker=context.serviceWorkers()[0]||await context.waitForEvent('serviceworker');
+  // Keep this fixture offline even when a real native helper is registered on the machine.
+  await worker.evaluate(()=>{chrome.runtime.connectNative=()=>{throw Error('Kết nối công cụ YouTube bị ngắt. Thử tải lại.');};});
   const page=await context.newPage();
   await page.route('https://www.youtube.com/**',route=>route.fulfill({status:200,contentType:'text/html',body:new URL(route.request().url()).pathname.startsWith('/shorts/')?shortsFixture:fixture}));
   await page.goto('https://www.youtube.com/watch?v=jNQXAC9IVRw');

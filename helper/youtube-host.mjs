@@ -4,6 +4,8 @@ import crypto from 'node:crypto';
 import {spawn} from 'node:child_process';
 import {VIDEO_ID,youtubeChoices,cookieText,safeError} from './formats.mjs';
 import {INFO_TEMPLATE,progressEmitter} from './flow.mjs';
+import {openDownloadFolder} from './windows-shell.mjs';
+import {outputTemplate} from './output-template.mjs';
 const root=import.meta.dirname,config=JSON.parse((await fs.readFile(path.join(root,'config.json'),'utf8')).replace(/^\uFEFF/,''));
 if(!config.allowedOrigins.includes(process.argv[2]))process.exit(1);
 const tempRoot=path.join(root,'temp'),children=new Set(),operations=new Map(),cache=new Map();let input=Buffer.alloc(0),closing=false,downloadActive=false;
@@ -15,7 +17,6 @@ async function marker(dir){try{return JSON.parse(await fs.readFile(path.join(dir
 async function cleanup(dir){const relative=path.relative(tempRoot,path.resolve(dir));if(!/^[a-f0-9-]{36}$/.test(relative)||path.dirname(path.resolve(dir))!==tempRoot)return;if((await marker(dir))?.owner!=='youtube-temp-v1')return;await fs.rm(dir,{recursive:true,force:true,maxRetries:3,retryDelay:200});}
 for(const entry of await fs.readdir(tempRoot,{withFileTypes:true})){if(!entry.isDirectory()||!/^[a-f0-9-]{36}$/.test(entry.name))continue;const dir=path.join(tempRoot,entry.name),value=await marker(dir);if(value?.owner!=='youtube-temp-v1')continue;let alive=false;try{process.kill(value.pid,0);alive=true;}catch{}if(!alive)await cleanup(dir);}
 function stop(child){if(!child?.pid)return;spawn('taskkill.exe',['/PID',String(child.pid),'/T','/F'],{windowsHide:true,stdio:'ignore'}).on('error',()=>{});}
-function openFolder(){return new Promise((resolve,reject)=>{const child=spawn('explorer.exe',[config.downloadsDir],{windowsHide:true,stdio:'ignore'});child.once('error',()=>reject(Error('Không mở được thư mục Tải xuống.')));child.once('spawn',()=>{child.unref();resolve();});});}
 function run(executable,args,{onLine,operation,timeout=0,maxOutput=20*1024*1024}={}){
  return new Promise((resolve,reject)=>{
   const child=spawn(executable,args,{windowsHide:true,env:{...process.env,PYTHONUTF8:'1',PYTHONIOENCODING:'utf-8'},stdio:['ignore','pipe','pipe']});children.add(child);if(operation)operation.child=child;
@@ -40,9 +41,10 @@ async function download(message,operation){
  try{
   const info=await getInfo(message.videoId,message.cookies,operation),choice=info.choices.find(item=>item.id===message.choiceId);if(!choice)throw Error('Chất lượng đã thay đổi. Mở danh sách rồi chọn lại.');
   space=await workspace(message.cookies);await fs.mkdir(config.downloadsDir,{recursive:true});
+  const template=await outputTemplate(config.downloadsDir,message.videoId,choice);
   let filepath='';const streams=new Map(),expected=choice.estimatedBytes;
   const emit=progressEmitter((state,percent)=>write({event:'progress',id:message.id,videoId:message.videoId,state,percent}));
-  const args=[...baseArgs(space),'--no-simulate','--newline','--progress','--windows-filenames','--trim-filenames','180','--no-overwrites','-f',choice.id,'--merge-output-format',choice.container,'-P','home:'+config.downloadsDir,'-P','temp:'+space.dir,'-o','%(title).150B [%(id)s] '+choice.label+'.%(ext)s','--progress-template','download:MD_PROGRESS:{"status":%(progress.status)j,"bytes":%(progress.downloaded_bytes)j,"total":%(progress.total_bytes)j,"format":%(info.format_id)j}','--progress-template','postprocess:MD_MERGE:%(progress.status)j','--print','after_move:MD_SAVED:%(filepath)j','https://www.youtube.com/watch?v='+message.videoId];
+  const args=[...baseArgs(space),'--no-simulate','--newline','--progress','--windows-filenames','--trim-filenames','180','--no-overwrites','-f',choice.id,'--merge-output-format',choice.container,'-P','home:'+config.downloadsDir,'-P','temp:'+space.dir,'-o',template,'--progress-template','download:MD_PROGRESS:{"status":%(progress.status)j,"bytes":%(progress.downloaded_bytes)j,"total":%(progress.total_bytes)j,"format":%(info.format_id)j}','--progress-template','postprocess:MD_MERGE:%(progress.status)j','--print','after_move:MD_SAVED:%(filepath)j','https://www.youtube.com/watch?v='+message.videoId];
   emit('downloading',0);
   await run(config.ytdlp,args,{operation,onLine:line=>{
    if(line.startsWith('MD_PROGRESS:')){try{const value=JSON.parse(line.slice(12)),bytesForStream=Number(value.bytes)||0;streams.set(value.format,{bytes:bytesForStream,total:Number(value.total)||(value.status==='finished'?bytesForStream:0)});const bytes=[...streams.values()].reduce((sum,item)=>sum+item.bytes,0);const total=expected||(streams.size===choice.streams.length&&[...streams.values()].every(item=>item.total>0)?[...streams.values()].reduce((sum,item)=>sum+item.total,0):0);emit('downloading',total?Math.min(95,Math.floor(bytes/total*95)):null);}catch{}}
@@ -54,13 +56,13 @@ async function download(message,operation){
   const stat=await fs.stat(filepath);if(!stat.isFile()||!stat.size)throw Error('File tải về rỗng.');
   const probe=JSON.parse(await run(path.join(config.ffmpegDir,'ffprobe.exe'),['-v','error','-show_entries','stream=codec_type','-of','json',filepath],{operation,timeout:20000}));
   if(!probe.streams?.some(stream=>stream.codec_type==='video')||choice.hasAudio&&!probe.streams?.some(stream=>stream.codec_type==='audio'))throw Error('File tải về thiếu hình hoặc tiếng.');
-  return {videoId:message.videoId,filename:path.basename(filepath),bytes:stat.size,state:'complete',percent:100};
+  return {videoId:message.videoId,filename:path.basename(filepath),downloadsFolder:path.basename(config.downloadsDir),bytes:stat.size,state:'complete',percent:100};
  }finally{downloadActive=false;if(space)await cleanup(space.dir);}
 }
 async function handle(message){
  if(!message||typeof message.id!=='string'||message.id.length>100)return;
- if(message.operation==='ping'){write({id:message.id,ok:true,version:'0.1.0'});return;}
- if(message.operation==='open-folder'){try{await openFolder();write({id:message.id,ok:true});}catch(error){write({id:message.id,ok:false,error:error.message});}return;}
+ if(message.operation==='ping'){write({id:message.id,ok:true,version:'0.1.1'});return;}
+ if(message.operation==='open-folder'){try{await openDownloadFolder(config.downloadsDir);write({id:message.id,ok:true});}catch(error){write({id:message.id,ok:false,error:error.message});}return;}
  if(message.operation==='cancel'){const operation=operations.get(message.target);if(operation){operation.cancelled=true;stop(operation.child);}write({id:message.id,ok:true});return;}
  if(!VIDEO_ID.test(message.videoId||'')||!['info','download'].includes(message.operation)){write({id:message.id,ok:false,error:'Yêu cầu YouTube không hợp lệ.'});return;}
  const operation={cancelled:false};operations.set(message.id,operation);

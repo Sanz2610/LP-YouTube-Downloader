@@ -54,3 +54,5 @@ jobs:
           path: |
             evidence/isolated-edge/*.png
             evidence/isolated-edge/result.json
+            evidence/download-flow/*.png
+            evidence/download-flow/result.json

@@ -42,7 +42,9 @@ jobs:
           if($LASTEXITCODE -eq 0){
             gh release upload "$env:GITHUB_REF_NAME" dist/*.zip dist/SHA256SUMS.txt --clobber
           }else{
-            gh release create "$env:GITHUB_REF_NAME" dist/*.zip dist/SHA256SUMS.txt --title "LP YouTube Downloader $env:GITHUB_REF_NAME" --generate-notes
+            $notesFile="docs/releases/$env:GITHUB_REF_NAME.md"
+            $notes=if(Test-Path -LiteralPath $notesFile){@('--notes-file',$notesFile)}else{@('--generate-notes')}
+            gh release create "$env:GITHUB_REF_NAME" dist/*.zip dist/SHA256SUMS.txt --title "LP YouTube Downloader $env:GITHUB_REF_NAME" @notes
           }
           if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}
       - name: Save browser QA evidence

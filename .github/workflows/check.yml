@@ -1,0 +1,25 @@
+name: Validate source
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.15.0'
+          cache: npm
+      - name: Build and verify
+        shell: pwsh
+        run: |
+          npm ci
+          if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}
+          foreach($task in @('build','check','test','qa')){
+            npm run $task
+            if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}
+          }

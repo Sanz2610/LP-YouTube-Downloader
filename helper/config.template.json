@@ -1,0 +1,8 @@
+{
+  "node": "__NODE__",
+  "hostScript": "__HOST_SCRIPT__",
+  "ytdlp": "__YTDLP__",
+  "ffmpegDir": "__FFMPEG_DIR__",
+  "downloadsDir": "__DOWNLOADS__",
+  "allowedOrigins": []
+}

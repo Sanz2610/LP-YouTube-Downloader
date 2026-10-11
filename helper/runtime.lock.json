@@ -1,0 +1,17 @@
+{
+  "url": "https://github.com/Sanz2610/LP-YouTube-Downloader/releases/download/runtime-2026-10-11/helper-runtime-win-x64.zip",
+  "sha256": "e1f793dd12d928bb0c861e4eb1ef0e18571b7b2f51b52d62d99c60cefadf46be",
+  "files": {
+    "runtime/node.exe": "3331e1ffe19874215472217c5e94f5a0c6d8e18c4ac7111d3937aa0ad5e9b4a5",
+    "tools/ffmpeg/avcodec-62.dll": "9c4a9e1117965467b5f10a733afd0a23b1d2a3a867249012086bff2a19604800",
+    "tools/ffmpeg/avdevice-62.dll": "f2ffc54d0288460e44c2bbecef03487abb1b071188a3a46f432d85283435ee5c",
+    "tools/ffmpeg/avfilter-11.dll": "633d67dbee430a9d1c2407ae350e7ca30b41260e90e871ec87b7bbb1ce56a334",
+    "tools/ffmpeg/avformat-62.dll": "46572cb51c815434e02dc49158250fec791e7b6bca1bdfd19a9007b9cade882f",
+    "tools/ffmpeg/avutil-60.dll": "70f7e817b6021da8665b98c6af580fd62b4c8540714130679a5c09432763bf8b",
+    "tools/ffmpeg/ffmpeg.exe": "f2542f5e4a2ec410e048145a93958bf5b92ccda4d288da51021d73bad53c1aa4",
+    "tools/ffmpeg/ffprobe.exe": "7ca0370b254f0fa6ed33f0415bea2117bcb2958d5cae6f8718929b582edce062",
+    "tools/ffmpeg/swresample-6.dll": "21433180f650dd9bcdea21c7fc896bbc5fc9a4dd7b93784f8fa937f7d3006ee4",
+    "tools/ffmpeg/swscale-9.dll": "8b09eacc88ef30136e37654fc9c309b4bff87380dbddbc9e69c1667e389e60ad",
+    "tools/yt-dlp.exe": "66674953fe251b89f4d08c5f0e35e0728679bd67ab3d7d05c0562af101dd3e7a"
+  }
+}

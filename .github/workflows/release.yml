@@ -1,0 +1,54 @@
+name: Build release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.15.0'
+          cache: npm
+      - name: Verify release tag
+        shell: pwsh
+        run: |
+          $version=(Get-Content manifest.json -Raw | ConvertFrom-Json).version
+          if($env:GITHUB_REF_NAME -ne "v$version"){throw 'Tag and manifest version do not match.'}
+      - name: Install build tools and pinned helper
+        shell: pwsh
+        run: |
+          npm ci
+          if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}
+          npm run setup:helper
+          if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}
+      - name: Build, test, validate and package
+        shell: pwsh
+        run: |
+          foreach($task in @('build','check','test','qa','package','package:offline')){
+            npm run $task
+            if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}
+          }
+          Get-FileHash dist/*.zip -Algorithm SHA256 | ForEach-Object { "$($_.Hash.ToLower())  $([IO.Path]::GetFileName($_.Path))" } | Set-Content dist/SHA256SUMS.txt -Encoding ascii
+      - name: Publish release artifacts
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$env:GITHUB_REF_NAME" *> $null
+          if($LASTEXITCODE -eq 0){
+            gh release upload "$env:GITHUB_REF_NAME" dist/*.zip dist/SHA256SUMS.txt --clobber
+          }else{
+            gh release create "$env:GITHUB_REF_NAME" dist/*.zip dist/SHA256SUMS.txt --title "LP YouTube Downloader $env:GITHUB_REF_NAME" --generate-notes
+          }
+          if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}
+      - name: Save browser QA evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-qa
+          path: |
+            evidence/isolated-edge/*.png
+            evidence/isolated-edge/result.json

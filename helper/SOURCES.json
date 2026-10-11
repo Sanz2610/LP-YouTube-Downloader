@@ -1,0 +1,7 @@
+{
+  "provenance": "Selected from Media Sweep retired helper backup; no Media Sweep files are runtime inputs.",
+  "ytDlp": {"version":"2026.08.19","source": "https://github.com/yt-dlp/yt-dlp/releases/tag/2026.08.19", "license": "Source: Unlicense; bundled Windows executable: GPL-3.0-or-later and included dependency notices", "sha256": "66674953fe251b89f4d08c5f0e35e0728679bd67ab3d7d05c0562af101dd3e7a", "copiedFrom": "helper-retired/tools/yt-dlp.exe"},
+  "ffmpeg": {"source": "https://github.com/BtbN/FFmpeg-Builds", "license": "LGPL-3.0-or-later shared build; see tools/ffmpeg/LICENSE.txt", "sha256": "ed72154c220438057e840421c8df46e731c707aeecabec25ada7b27d9034f72e", "copiedFrom": "helper-retired/tools/ffmpeg/ffmpeg-n8.1-latest-win64-lgpl-shared-8.1/bin plus LICENSE.txt"},
+  "nativeBridge": {"source": "NativeBridge.cs adapted from the project-owned retired helper", "build": "tools/compile-bridge.ps1", "copiedFor": "Windows stdio forwarding to Node native host; release binary compiled from included source"},
+  "node": {"version": "24.15.0", "license": "Node.js runtime; see https://github.com/nodejs/node/blob/main/LICENSE", "sha256": "3331e1ffe19874215472217c5e94f5a0c6d8e18c4ac7111d3937aa0ad5e9b4a5", "copiedFor": "Portable helper runtime; avoids a separate Node.js install"}
+}

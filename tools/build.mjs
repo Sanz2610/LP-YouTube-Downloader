@@ -1,0 +1,21 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {build} from 'esbuild';
+
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const out=path.join(root,'extension');
+await fs.rm(out,{recursive:true,force:true});
+await fs.mkdir(path.join(out,'background'),{recursive:true});
+await fs.mkdir(path.join(out,'content'),{recursive:true});
+await fs.mkdir(path.join(out,'assets'),{recursive:true});
+await fs.copyFile(path.join(root,'manifest.json'),path.join(out,'manifest.json'));
+for(const file of ['icon.svg','icon16.png','icon32.png','icon48.png','icon128.png'])await fs.copyFile(path.join(root,'assets',file),path.join(out,'assets',file));
+await fs.copyFile(path.join(root,'helper/licenses/LUCIDE-LICENSE.txt'),path.join(out,'assets/LUCIDE-LICENSE.txt'));
+await fs.mkdir(path.join(out,'ui'),{recursive:true});
+for(const file of ['popup.html','popup.css','popup.js'])await fs.copyFile(path.join(root,'src/ui',file),path.join(out,'ui',file));
+const common={bundle:true,minify:false,sourcemap:false,target:'chrome116',legalComments:'eof',logLevel:'warning',platform:'browser'};
+await build({...common,entryPoints:[path.join(root,'src/background/service-worker.js')],outfile:path.join(out,'background/service-worker.js'),format:'esm'});
+await build({...common,entryPoints:[path.join(root,'src/content/youtube.js')],outfile:path.join(out,'content/youtube.js'),format:'iife'});
+console.log(`Built LP YouTube Downloader ${JSON.parse(await fs.readFile(path.join(root,'manifest.json'),'utf8')).version}`);
+console.log(`Load unpacked: ${out}`);

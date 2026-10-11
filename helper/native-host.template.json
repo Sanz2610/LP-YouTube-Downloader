@@ -1,0 +1,7 @@
+{
+  "name": "com.lp.youtube_downloader",
+  "description": "LP YouTube Downloader native download helper",
+  "path": "__BRIDGE__",
+  "type": "stdio",
+  "allowed_origins": []
+}
